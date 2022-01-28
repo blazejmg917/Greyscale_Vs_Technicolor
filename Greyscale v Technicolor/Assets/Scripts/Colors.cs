@@ -19,7 +19,7 @@ public class Colors : MonoBehaviour
     //array of all materials for easy access
     private static Material[] matArray;
 
-    void Start()
+    void Awake()
     {
         matArray = new Material[] { greyMat, redMat, greenMat, blueMat };
     }

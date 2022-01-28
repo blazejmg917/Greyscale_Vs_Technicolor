@@ -14,10 +14,17 @@ public class ColorBullet : MonoBehaviour
 
     void Start()
     {
+        Debug.Log(startColor);
         //at start of runtime, set the color to its initial state
-        currentColor = startColor;
+        //currentColor = startColor;
         //get the mesh renderer for easy access
-        matRenderer = GetComponent<MeshRenderer>();
+        matRenderer = gameObject.GetComponent<MeshRenderer>();
+        if(matRenderer == null)
+        {
+            Debug.LogWarning("MatRenderer null");
+        }
+        //sets the color to the correct starting color
+        SetColor(startColor);
     }
 
     // Update is called once per frame
@@ -29,8 +36,17 @@ public class ColorBullet : MonoBehaviour
     // sets the bullet's current color to the given color
     public void SetColor(Colors.Color newColor)
     {
+        Debug.Log("new color: " + newColor);
         currentColor = newColor;
-        matRenderer.material = Colors.GetColorMat(newColor);
+        if(matRenderer.material == null)
+        {
+            Debug.LogWarning("MatRenderer material null");
+        }
+        if(Colors.GetColorMat(currentColor) == null)
+        {
+            Debug.LogWarning("returning null");
+        }
+        matRenderer.material = Colors.GetColorMat(currentColor);
     }
 
     // returns the bullet's current color
