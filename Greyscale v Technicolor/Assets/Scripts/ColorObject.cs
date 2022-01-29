@@ -16,6 +16,21 @@ public class ColorObject : MonoBehaviour
     //all color receivers currently in contact with this object
     private List<ColorReceiver> contactReceivers;
 
+    [Header("Movement settings")]
+    [Tooltip("The current timing, used for movement calls")]
+    public float timing = 0;
+    [Tooltip("The max time a full movement takes")]
+    public float totalTime;
+    [Tooltip("The farthest this object will move from its starting position for red and blue")]
+    public float maxDisplacement = 1;
+    [Tooltip("The starting position relative to the object's movement for red and blue")]
+    public Vector3 startMovePos;
+    [Tooltip("The maximum rotation for this object for green")]
+    public float maxRotation = 45;
+    [Tooltip("The starting rotation for this object for green")]
+    public float startRotation;
+
+
     //delegate for frame by frame calls
     private delegate void FrameAction();
     //array for holding frame by frame calls for easy access
@@ -24,6 +39,9 @@ public class ColorObject : MonoBehaviour
     private delegate void ChangeAction();
     //array for holding color change calls for easy access
     private ChangeAction[] changeActions;
+
+    //rigidbody
+    private Rigidbody rb;
 
 
     void Start()
@@ -44,12 +62,21 @@ public class ColorObject : MonoBehaviour
 
         //sets the color to the correct starting color
         SetColor(startColor);
+
+        //gets rigidbody
+        rb = gameObject.GetComponent<Rigidbody>();
+
+        //sets up starting position for movement
+        startMovePos = transform.position;
+
+        //sets up starting rotation for rotation
+        startRotation = transform.rotation.z;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        
+        frameActions[(int)currentColor]();
     }
 
     
@@ -64,6 +91,7 @@ public class ColorObject : MonoBehaviour
         currentColor = newColor;
         matRenderer.material = Colors.GetColorMat(newColor);
         changeActions[(int)newColor]();
+        timing = 0;
         foreach(ColorReceiver receiver in contactReceivers)
         {
             receiver.CheckColor(gameObject);
@@ -108,19 +136,28 @@ public class ColorObject : MonoBehaviour
     //action to perform every frame when the object is Grey
     public void RedFrameAction()
     {
-        return;
+        Vector3 pos = transform.position;
+        pos.x = startMovePos.x + Mathf.Sin( (timing * ( totalTime / (2 * Mathf.PI) ) ) ) * maxDisplacement;
+        transform.position = pos;
+        timing += Time.fixedDeltaTime;
     }
 
     //action to perform every frame when the object is Grey
     public void GreenFrameAction()
     {
-        return;
+        Vector3 rot = transform.eulerAngles;
+        rot.z = startRotation + Mathf.Sin((timing * (totalTime / (2 * Mathf.PI)))) * maxRotation;
+        transform.eulerAngles = rot;
+        timing += Time.fixedDeltaTime;
     }
 
     //action to perform every frame when the object is Grey
     public void BlueFrameAction()
     {
-        return;
+        Vector3 pos = transform.position;
+        pos.y = startMovePos.y - Mathf.Sin((timing * (totalTime / (2 * Mathf.PI)))) * maxDisplacement;
+        transform.position = pos;
+        timing += Time.fixedDeltaTime;
     }
 
     //action to perform when the object is turned Grey
