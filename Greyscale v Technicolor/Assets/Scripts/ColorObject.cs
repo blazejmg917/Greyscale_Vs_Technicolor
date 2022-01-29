@@ -12,14 +12,18 @@ public class ColorObject : MonoBehaviour
     public Colors.Color currentColor;
     //this object's mesh renderer
     private MeshRenderer matRenderer;
+
+    //all color receivers currently in contact with this object
+    private List<ColorReceiver> contactReceivers;
+
     //delegate for frame by frame calls
-    delegate void FrameAction();
+    private delegate void FrameAction();
     //array for holding frame by frame calls for easy access
-    FrameAction[] frameActions;
+    private FrameAction[] frameActions;
     //delegate for color change calls
-    delegate void ChangeAction();
+    private delegate void ChangeAction();
     //array for holding color change calls for easy access
-    ChangeAction[] changeActions;
+    private ChangeAction[] changeActions;
 
 
     void Start()
@@ -28,6 +32,9 @@ public class ColorObject : MonoBehaviour
         //currentColor = startColor;
         //get the mesh renderer for easy access
         matRenderer = GetComponent<MeshRenderer>();
+
+        //set up the contactReceivers list
+        contactReceivers = new List<ColorReceiver>();
 
         //set up the frameActions array for easy access
         frameActions = new FrameAction[] { GreyFrameAction, RedFrameAction, GreenFrameAction, BlueFrameAction };
@@ -45,26 +52,22 @@ public class ColorObject : MonoBehaviour
         
     }
 
-    //handles collisions with triggers, namely color bullets
-    void OnTriggerEnter(Collider col)
-    {
-        //attempt to get the ColorBullet script from the trigger
-        GameObject bullet = col.gameObject;
-        //if the script exists, set this object's color to the color of the bullet
-        if ( bullet.GetComponent<ColorBullet>() != null)
-        {
-            SetColor(bullet.GetComponent<ColorBullet>().GetColor());
-            Destroy(bullet);
-
-        }
-    }
+    
 
     // sets the current color of this object to the specified color
-    private void SetColor(Colors.Color newColor)
+    public void SetColor(Colors.Color newColor)
     {
+        if(newColor == currentColor)
+        {
+            return;
+        }
         currentColor = newColor;
         matRenderer.material = Colors.GetColorMat(newColor);
         changeActions[(int)newColor]();
+        foreach(ColorReceiver receiver in contactReceivers)
+        {
+            receiver.CheckColor(gameObject);
+        }
     }
 
     //returns this object's current color
@@ -72,6 +75,29 @@ public class ColorObject : MonoBehaviour
     {
         return currentColor;
     }
+
+
+    public void Link(ColorReceiver receiver)
+    {
+        Debug.Log("received link");
+        if (!contactReceivers.Contains(receiver))
+        {
+            Debug.Log("successfully made link");
+            contactReceivers.Add(receiver);
+        }
+    }
+
+    public void Unlink(ColorReceiver receiver)
+    {
+        Debug.Log("received unlink");
+        if (contactReceivers.Contains(receiver))
+        {
+            Debug.Log("successfully unlinked");
+            contactReceivers.Remove(receiver);
+        }
+    }
+
+
 
     //action to perform every frame when the object is Grey
     public void GreyFrameAction()
