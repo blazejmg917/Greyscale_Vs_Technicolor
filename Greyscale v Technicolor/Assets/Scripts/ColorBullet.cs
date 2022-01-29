@@ -60,4 +60,20 @@ public class ColorBullet : MonoBehaviour
     {
 
     }
+
+    //handles collisions
+    void OnTriggerEnter(Collider col)
+    {
+
+        //attempt to get the ColorObject script from the object
+        GameObject go = col.gameObject;
+        //if the script exists, set this object's color to the color of the bullet
+        if (go.GetComponent<ColorObject>() != null)
+        {
+            go.GetComponent<ColorObject>().SetColor(GetColor());
+                
+
+        }
+        Destroy(gameObject);
+    }
 }
