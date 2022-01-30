@@ -76,7 +76,10 @@ public class ColorObject : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        frameActions[(int)currentColor]();
+        if (contactReceivers.Count == 0)
+        {
+            frameActions[(int)currentColor]();
+        }
     }
 
     
