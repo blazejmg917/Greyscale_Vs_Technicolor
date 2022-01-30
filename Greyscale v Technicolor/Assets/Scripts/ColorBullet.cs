@@ -12,7 +12,7 @@ public class ColorBullet : MonoBehaviour
     //this object's mesh renderer
     private MeshRenderer matRenderer;
 
-    void Start()
+    void Awake()
     {
         Debug.Log(startColor);
         //at start of runtime, set the color to its initial state
@@ -74,6 +74,9 @@ public class ColorBullet : MonoBehaviour
                 
 
         }
-        Destroy(gameObject);
+        if (! (LayerMask.LayerToName(go.layer) == "Player" || go.layer == gameObject.layer))
+        {
+            Destroy(gameObject);
+        }
     }
 }
