@@ -13,6 +13,9 @@ public class ColorReceiver : MonoBehaviour
     //all of the objects currently in contact that are the correct color for activation
     List<GameObject> activators;
 
+    //manager
+    private GameManager man;
+
     //test
     public Material activeMat;
     //test
@@ -28,6 +31,7 @@ public class ColorReceiver : MonoBehaviour
         activators = new List<GameObject>();
         //test
         matRenderer = gameObject.GetComponent<MeshRenderer>();
+        man = GameManager.Instance();
     }
 
     // Update is called once per frame
@@ -119,10 +123,12 @@ public class ColorReceiver : MonoBehaviour
         if (currentlyActivated)
         {
             matRenderer.material = activeMat;
+            man.AddReceiver(this);
         }
         else
         {
             matRenderer.material = inactiveMat;
+            man.RemoveReceiver(this);
         }
         
         return;
