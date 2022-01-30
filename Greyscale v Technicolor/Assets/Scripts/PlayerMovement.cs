@@ -32,9 +32,37 @@ public class PlayerMovement : MonoBehaviour
     public float widthMargin = 5f;
 
 
+    [Header("Gun objects")]
+    [Tooltip("the gun")]
+    public GameObject gun;
+    [Tooltip("the end of the gun")]
+    public GameObject gunEnd;
+    [Tooltip("the gun holder (for rotation)")]
+    public GameObject gunHolder;
+
+    [Header("Gun stats")]
+    [Tooltip("projectile")]
+    public GameObject proj;
+    [Tooltip("the gun's current color")]
+    public Colors.Color gunColor = Colors.Color.Grey;
+    [Tooltip("how long it takes until the gun can fire again")]
+    public float gunDelay = 1;
+    [Tooltip("the gun's cooldown timer")]
+    public float gunTimer;
+    [Tooltip("the projectiles' speed")]
+    public float projSpeed;
+    //the gun's mesh renderer
+    private MeshRenderer matRenderer;
+
+
     // Start is called before the first frame update
     void Start()
     {
+        matRenderer = gun.GetComponent<MeshRenderer>();
+        if(matRenderer == null)
+        {
+            Debug.LogWarning("why");
+        }
         height = GetComponent<Collider>().bounds.extents.y;
         width = GetComponent<Collider>().bounds.extents.x + widthMargin;
 
@@ -50,11 +78,16 @@ public class PlayerMovement : MonoBehaviour
         Vector3 vel = rb.velocity;
         vel.x = currentVel.x;
         rb.velocity = vel;
+        if(gunTimer > 0)
+        {
+            gunTimer -= Time.fixedDeltaTime;
+        }
     }
 
     //When player movement input is detected
     void OnMove(InputValue value)
     {
+        Debug.Log("moved: " + value);
         float vel = value.Get<float>();
         if (Mathf.Abs(vel) < .1)
         {
@@ -79,12 +112,57 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    //
+    void OnShoot()
+    {
+        if(gunTimer <= 0)
+        {
+            GameObject newProj = Instantiate(proj, gunEnd.transform.position, gunHolder.transform.rotation);
+            newProj.GetComponent<Rigidbody>().velocity = gunHolder.transform.up.normalized * projSpeed;
+            newProj.GetComponent<ColorBullet>().SetColor(gunColor);
+            Debug.Log("Shot new bullet with velocity: " + newProj.GetComponent<Rigidbody>().velocity);
+            Debug.Log("gundealy: " + gunDelay);
+            gunTimer = gunDelay;
+            Debug.Log("guntimer: " + gunTimer);
+        }
+    }
+
+    void OnGrey()
+    {
+        gunColor = Colors.Color.Grey;
+        matRenderer.material = Colors.GetColorMat(Colors.Color.Grey);
+    }
+
+    void OnRed()
+    {
+        gunColor = Colors.Color.Red;
+        matRenderer.material = Colors.GetColorMat(Colors.Color.Red);
+    }
+
+    void OnGreen()
+    {
+        gunColor = Colors.Color.Green;
+        matRenderer.material = Colors.GetColorMat(Colors.Color.Green);
+    }
+
+    void OnBlue()
+    {
+        gunColor = Colors.Color.Blue;
+        matRenderer.material = Colors.GetColorMat(Colors.Color.Blue);
+    }
+
+    void OnSwapColor()
+    {
+        int newColor = ((int)gunColor + 1) % 4;
+        gunColor = (Colors.Color)newColor;
+        matRenderer.material = Colors.GetColorMat(gunColor);
+    }
+
     bool CheckGrounded()
     {
         LayerMask mask = LayerMask.GetMask("Player", "Projectile");
         Vector3 center = transform.position;
         Vector3 size = new Vector3(width/2, heightMargin, width/2);
-        Debug.Log(center);
 
 
 
