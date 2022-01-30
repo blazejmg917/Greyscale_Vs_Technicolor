@@ -70,7 +70,7 @@ public class ColorObject : MonoBehaviour
         startMovePos = transform.position;
 
         //sets up starting rotation for rotation
-        startRotation = transform.rotation.z;
+        startRotation = transform.rotation.x;
     }
 
     // Update is called once per frame
@@ -91,6 +91,8 @@ public class ColorObject : MonoBehaviour
         {
             return;
         }
+        startMovePos = transform.position;
+        startRotation = transform.rotation.x;
         currentColor = newColor;
         matRenderer.material = Colors.GetColorMat(newColor);
         changeActions[(int)newColor]();
@@ -149,7 +151,7 @@ public class ColorObject : MonoBehaviour
     public void GreenFrameAction()
     {
         Vector3 rot = transform.eulerAngles;
-        rot.z = startRotation + Mathf.Sin((timing * (totalTime / (2 * Mathf.PI)))) * maxRotation;
+        rot.x = startRotation + Mathf.Sin((timing * (totalTime / (2 * Mathf.PI)))) * maxRotation;
         transform.eulerAngles = rot;
         timing += Time.fixedDeltaTime;
     }
