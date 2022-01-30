@@ -55,6 +55,10 @@ public class PlayerMovement : MonoBehaviour
     private MeshRenderer matRenderer;
 
 
+    //manager
+    private GameManager man;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -69,6 +73,8 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody>();
 
         currentVel = Vector3.zero;
+
+        man = GameManager.Instance();
     }
 
     // Update is called once per frame
@@ -156,6 +162,11 @@ public class PlayerMovement : MonoBehaviour
         int newColor = ((int)gunColor + 1) % 4;
         gunColor = (Colors.Color)newColor;
         matRenderer.material = Colors.GetColorMat(gunColor);
+    }
+
+    void OnPause()
+    {
+        man.Pause();
     }
 
     bool CheckGrounded()
